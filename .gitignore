@@ -1,0 +1,24 @@
+# Secrets & credentials (never commit)
+*.pem
+*.key
+*.p12
+*.pfx
+.env
+.env.*
+credentials
+*credentials*
+*secret*
+
+# Database dumps & large transfer payloads
+*.sql
+*.sql.gz
+*.dump
+*.tar.gz
+*.zip
+db-dumps/
+staging/
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
