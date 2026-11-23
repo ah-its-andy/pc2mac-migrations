@@ -20,8 +20,10 @@
 
 ### Phase 2：局域网 / Tailscale 传输（双侧协同）
 - [x] 同步基础非敏感配置（Mac `~/.gitconfig` 设为 `osxkeychain`、VS Code & Cursor `settings.json`、WSL `.bashrc` 参考 `wsl-bashrc.ref`）
-- [ ] 传输凭证与密钥（`~/.ssh/*.pem`、`~/.aws`、`mcp.json` 等 —— **用户要求暂不同步 AWS/instabox 等访问密钥**）
-- [ ] 传输代码与编排目录（`~/source` 排除 `tonepivot` & `darktable-sync`，`~/stacks`、`~/stacks-mac`、`~/csn-*`）→ macOS 宿主
+- [x] 同步 Antigravity 配置（`~/.gemini/config/config.json`、`mcp_config.json`、`~/.gemini/antigravity/mcp/`）
+- [x] 同步代码项目：`~/source/csn-workspace/csn_bo` 与 `~/source/GambleGuard-Workspace`（已排除 `node_modules`/`bin`/`obj`/`.venv`）
+- [ ] 传输其余凭证与密钥（`~/.ssh/*.pem`、`~/.aws` 等 —— **用户要求暂不同步 AWS/instabox 等访问密钥**）
+- [ ] 传输其余代码与编排目录（`~/source` 其余项目如 `csn_api`、`csnremaster-workspace`、`monorepo` 等，以及 `~/stacks`、`~/stacks-mac`、`~/csn-*`）
 - [ ] 传输数据库 `.sql` 备份与 `~/seatunnel-sync` → macOS 宿主
 
 ### Phase 3：容器与数据库重建（Mac 侧负责）
@@ -36,6 +38,7 @@
 ---
 
 ## 交接日志（Handoff Log）
+- **2026-11-23 (Antigravity 与代码同步)**：已同步 Antigravity 配置（`config.json`、`mcp_config.json`、`mcp/`），并已将 `csn-workspace/csn_bo` 与 `GambleGuard-Workspace` 传输至 Mac `~/source/`。
 - **2026-11-23 (配置同步)**：已将 `~/.gitconfig`（适配为 `osxkeychain`）、VS Code / Cursor `settings.json`、WSL `wsl-bashrc.ref` 同步至 Mac，并核对安装了非 WSL 扩展（已按要求跳过 AWS、instabox、`.ssh/*.pem` 及含 token 的 `mcp.json`）。
 - **2026-11-23 (更新)**：调整方案为直接在 macOS 宿主配置原生 ARM64 开发环境（不使用 OrbStack Ubuntu VM，OrbStack 仅用于 Docker 容器），已同步更新 `MAC_SETUP_PLAN.md` 并重新复制至 Mac。
 - **2026-11-23**：打通免密 SSH (`andytsui@192.168.0.21`)，导出 `vscode-extensions.txt` 与 `cursor-extensions.txt`，生成 Mac 侧独立安装执行计划 `MAC_SETUP_PLAN.md` 并复制至 Mac `~/pc2mac-migrations/`。
