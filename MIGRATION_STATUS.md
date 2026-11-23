@@ -20,7 +20,7 @@
 
 ### Phase 2：局域网 / Tailscale 传输（双侧协同）
 - [x] 同步基础非敏感配置（Mac `~/.gitconfig` 设为 `osxkeychain`、VS Code & Cursor `settings.json`、WSL `.bashrc` 参考 `wsl-bashrc.ref`）
-- [x] 同步 Antigravity 配置（`~/.gemini/config/config.json`、`mcp_config.json`、`~/.gemini/antigravity/mcp/`）
+- [x] 同步 Antigravity 配置与本地对话历史（`~/.gemini/config/config.json`、`mcp_config.json`、`mcp/`，以及 `conversations`、`brain`、`annotations`、`chapter_titles` 增量合并）
 - [x] 同步代码项目：`~/source/csn-workspace`（完整目录，已排除 `node_modules`）与 `~/source/GambleGuard-Workspace`（已排除 `node_modules`/`bin`/`obj`/`.venv`）
 - [x] 在 Mac Rancher Desktop 上重新构建 `linux/arm64` 基础镜像 `csn_baseimage:dev`（基于 `Dockerfile.arm64` + `archive.debian.org`）
 - [ ] 传输其余凭证与密钥（`~/.ssh/*.pem`、`~/.aws` 等 —— **用户要求暂不同步 AWS/instabox 等访问密钥**）
@@ -39,6 +39,7 @@
 ---
 
 ## 交接日志（Handoff Log）
+- **2026-11-23 (Antigravity 对话历史)**：已增量合并同步 Antigravity 本地对话历史（`conversations` 共 20 个会话、`brain` 共 19 个目录、`annotations`、`chapter_titles`），保留了 Mac 端原有新建会话。
 - **2026-11-23 (csn-workspace & ARM64 镜像)**：已完整同步 `csn-workspace` 至 Mac `~/source/csn-workspace/`，并在 Mac Rancher Desktop 上使用 `Dockerfile.arm64`（切换至 `archive.debian.org`）成功构建 `linux/arm64` 架构的 `csn_baseimage:dev` 镜像。
 - **2026-11-23 (Antigravity 与代码同步)**：已同步 Antigravity 配置（`config.json`、`mcp_config.json`、`mcp/`），并已将 `csn-workspace/csn_bo` 与 `GambleGuard-Workspace` 传输至 Mac `~/source/`。
 - **2026-11-23 (配置同步)**：已将 `~/.gitconfig`（适配为 `osxkeychain`）、VS Code / Cursor `settings.json`、WSL `wsl-bashrc.ref` 同步至 Mac，并核对安装了非 WSL 扩展（已按要求跳过 AWS、instabox、`.ssh/*.pem` 及含 token 的 `mcp.json`）。
