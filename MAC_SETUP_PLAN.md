@@ -1,14 +1,13 @@
 # MacBook Pro 侧配置与安装执行计划
 
 > **适用主机**：`Andy-Tsui.local` (Apple Silicon `arm64`, macOS 27.0)
-> **架构策略**：macOS 宿主保持极简，使用 **OrbStack Ubuntu (ARM64)** 作为类 WSL2 隔离开发环境，IDE 通过 `Remote-SSH` 连入开发。
+> **架构策略**：直接在 **macOS 宿主环境** 原生配置全部开发工具链（Homebrew + Apple Silicon 原生运行时），容器仍使用 **OrbStack**（仅用于运行 Docker 容器，不再创建单独的 Ubuntu 虚拟机）。
 > **关联文档**：完整迁移总览见 [MIGRATION_PLAN.md](./MIGRATION_PLAN.md)，进度看板见 [MIGRATION_STATUS.md](./MIGRATION_STATUS.md)。
 
 ---
 
-## Step 1：macOS 宿主基础与软件安装
+## Step 1：macOS 宿主基础与 Homebrew 安装
 
-### 1.1 安装 Xcode CLI 工具、Rosetta 2 与 Homebrew
 在 Mac 终端依次执行：
 ```bash
 # 1. Xcode Command Line Tools
@@ -20,14 +19,48 @@ softwareupdate --install-rosetta --agree-to-license
 # 3. 安装 Homebrew (ARM64)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-安装完 Homebrew 后，按终端提示把 `/opt/homebrew/bin/brew shellenv` 写入 `~/.zprofile` 并 `source ~/.zprofile`。
-
-### 1.2 安装 Mac 端基础 CLI 与桌面应用
+安装完 Homebrew 后，按终端提示将 Homebrew 加入 `~/.zprofile` 并生效：
 ```bash
-# 基础 CLI（用于拉取仓库、传输与日常操作）
-brew install git gh rsync jq ripgrep
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
 
-# 核心容器与隔离 VM 引擎（替代 WSL2 + Rancher Desktop）
+---
+
+## Step 2：安装 CLI 工具链、运行时与桌面应用（macOS 原生 ARM64）
+
+> [!IMPORTANT]
+> 请勿从旧 Windows WSL2 拷贝 `linux/amd64` 二进制工具；全部通过 Homebrew 安装 macOS Apple Silicon 原生版本。
+
+### 2.1 基础 CLI 与语言运行时（对照原 WSL2 环境）
+```bash
+# 基础 CLI
+brew install git gh rsync jq ripgrep wget unzip
+
+# 语言运行时与云工具
+brew install nvm uv python@3.12 go openjdk@21 awscli
+brew install --cask dotnet-sdk
+```
+
+安装完成后，将环境变量写入 `~/.zshrc`：
+```bash
+cat <<'EOF' >> ~/.zshrc
+
+# Homebrew & Runtime Paths
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+export PATH="/opt/homebrew/opt/openjdk@21/bin:$HOME/go/bin:$HOME/.local/bin:$PATH"
+EOF
+source ~/.zshrc
+
+# 安装 Node.js v24
+nvm install 24
+nvm alias default 24
+```
+
+### 2.2 容器运行时与桌面应用
+```bash
+# 容器引擎（仅用于跑 Docker / Compose 容器，内存占用低且支持 Rosetta 模拟 amd64）
 brew install --cask orbstack
 
 # 桌面开发与协作软件
@@ -40,108 +73,32 @@ brew install --cask \
   telegram \
   tailscale
 ```
-> **说明**：`Antigravity` 请直接从官方安装包安装并登录账号；`Unity Hub` 已确认不迁移。
+> **说明**：
+> - `Antigravity` 请直接从官方安装包安装并登录账号；`Unity Hub` 已确认不迁移。
+> - 打开 **OrbStack.app** 完成初始化，并在设置中开启 **Rosetta**（用于兼容部分仅提供 `linux/amd64` 的私有容器镜像，如 `csn_api`、`csn_baseimage:dev`），之后验证 `docker version` 与 `docker compose version`。
 
 ---
 
-## Step 2：创建 OrbStack Ubuntu 隔离开发环境
+## Step 3：Mac 侧 IDE 扩展与 Antigravity 配置
 
-1. 打开 **OrbStack.app**，完成初始化引导。
-2. 在 OrbStack 设置中确认开启 **Rosetta (Use Rosetta to run x86_64/amd64 binaries)**，以便后续兼容部分仅提供 `linux/amd64` 的私有镜像（如 `csn_api` / `csn_baseimage:dev`）。
-3. 创建一个 Ubuntu 虚拟机（建议命名为 `dev` 或 `ubuntu`，用户名 `andi` 或默认 `ubuntu`）：
-   ```bash
-   orb create ubuntu dev
-   ```
-4. 验证隔离环境与双向挂载：
-   ```bash
-   # 进入隔离 Ubuntu 终端
-   orb -m dev
-
-   # 在 macOS 中访问 VM 磁盘
-   ls ~/OrbStack/dev
-
-   # 在 Mac 上测试 SSH 直连 VM（OrbStack 会自动配置 ~/.ssh/config）
-   ssh dev@orb "uname -a"
-   ```
-
----
-
-## Step 3：Ubuntu 隔离环境内工具链安装 (`linux/arm64`)
-
-> [!IMPORTANT]
-> 请勿从旧 Windows WSL2 直接拷贝 `linux/amd64` 二进制工具；请在 **Ubuntu VM 内部** 执行以下安装（均为 `arm64` 原生版本）。
-
-进入 VM（`orb -m dev`）后执行：
-
-### 3.1 基础构建工具
-```bash
-sudo apt update && sudo apt install -y \
-  git curl wget build-essential jq ripgrep unzip rsync ca-certificates gnupg
-```
-
-### 3.2 语言运行时（对照原 WSL2 环境）
-- **Node.js (nvm + Node v24)**：
-  ```bash
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-  source ~/.bashrc
-  nvm install 24
-  ```
-- **Python 3 & uv**：
-  ```bash
-  sudo apt install -y python3 python3-pip python3-venv
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  ```
-- **Go (1.25.x `linux-arm64`)**：
-  ```bash
-  # 按需调整具体小版本号，注意使用 linux-arm64
-  curl -LO https://go.dev/dl/go1.25.1.linux-arm64.tar.gz
-  mkdir -p ~/.local && tar -C ~/.local -xzf go1.25.1.linux-arm64.tar.gz
-  echo 'export PATH="$HOME/.local/go/bin:$HOME/go/bin:$PATH"' >> ~/.bashrc
-  ```
-- **Java (JDK 21)**：
-  ```bash
-  sudo apt install -y openjdk-21-jdk
-  ```
-- **.NET SDK (arm64)**：
-  ```bash
-  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel LTS
-  echo 'export PATH="$HOME/.dotnet:$PATH"' >> ~/.bashrc
-  ```
-- **AWS CLI v2 (`linux-aarch64`)**：
-  ```bash
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
-  unzip awscliv2.zip && sudo ./aws/install
-  rm -rf awscliv2.zip aws
-  ```
-- **Docker CLI 验证**：
-  ```bash
-  docker version
-  docker compose version
-  ```
-  （OrbStack 会自动将 Docker CLI 与容器引擎透传进 `dev` 虚拟机，无需在 VM 内单独装 Docker Daemon。）
-
----
-
-## Step 4：Mac 侧 IDE 扩展与 Antigravity 配置
-
-### 4.1 批量安装 VS Code / Cursor 扩展
+### 3.1 批量安装 VS Code / Cursor 扩展
 扩展清单已随本计划一起复制到 Mac（`vscode-extensions.txt` 和 `cursor-extensions.txt`）：
 ```bash
+cd ~/pc2mac-migrations
 # 确保 code / cursor CLI 已加入 PATH（可在各自 IDE 内按 Cmd+Shift+P 执行 "Install 'code' command in PATH"）
 cat vscode-extensions.txt | xargs -L 1 code --install-extension
 cat cursor-extensions.txt | xargs -L 1 cursor --install-extension
 ```
-并安装 `ms-vscode-remote.remote-ssh` / `anysphere.remote-ssh`，之后即可在 Mac 上通过 **Remote-SSH** 连入 `dev@orb` 开发。
 
-### 4.2 Antigravity 与日常账号登录
+### 3.2 Antigravity 与日常账号登录
 - 登录 **1Password**、**Tailscale**、**Slack**、**Lark**、**Telegram**、浏览器账号。
-- 登录 **Antigravity**，打开复制过来的 `~/pc2mac-migrations` 目录，即可让 Mac 侧 Antigravity 直接接手后续迁移与验收。
+- 登录 **Antigravity**，打开 `~/pc2mac-migrations` 目录，即可让 Mac 侧 Antigravity 直接接手后续迁移与验收。
 
 ---
 
-## Step 5：接收 Windows 侧数据后的恢复操作（数据推过来后执行）
+## Step 4：接收 Windows 侧数据后的恢复操作（数据推过来后执行）
 
-1. **修复 SSH 密钥权限**（在 Ubuntu VM 内，若 macOS 宿主也需要则同步一份）：
+1. **修复 SSH 密钥权限**：
    ```bash
    chmod 700 ~/.ssh
    chmod 600 ~/.ssh/*.pem ~/.ssh/config 2>/dev/null || true

@@ -1,7 +1,7 @@
 # Windows (WSL2) → MacBook Pro 工作负载迁移方案
 
 > **目标**：将当前 Windows 11 (x86_64) + WSL2 (`Ubuntu`) + Rancher Desktop 上的开发环境、容器与数据库、凭证配置、AI/IDE 工具链及个人数据，安全、完整地迁移至全新的 MacBook Pro (Apple Silicon / ARM64)。
-> **Mac 开发架构**：macOS 宿主保持极简，使用 **OrbStack Linux Machine (`Ubuntu`)**（或开源方案 **Lima**）构建类似 WSL2 的隔离 Linux 开发环境，IDE 通过 `Remote-SSH` 连入开发。
+> **Mac 开发架构**：直接在 **macOS 宿主环境** 原生配置所有开发工具链（Homebrew + Apple Silicon 原生运行时），使用 **OrbStack** 仅作为 Docker 容器运行时。
 > **传输方式**：局域网直连传输（`rsync` over SSH / SMB 共享）。
 > **盘点日期**：2026-11-18
 
@@ -60,7 +60,7 @@
 - **Shell 与 Git**：WSL `~/.gitconfig`、`~/.bashrc`；Windows `~/.gitconfig`
 
 ### 1.5 开发运行时与桌面工具
-- **WSL 运行时（在 Mac 的隔离 Ubuntu VM 中重装 ARM64 原生版）**：`git`、`python3`、`go` (`1.25.x`)、`java` (`jdk-21`)、`dotnet`、`.nvm` (Node v24)、`aws` CLI、`Android` SDK
+- **WSL 运行时（在 macOS 宿主通过 Homebrew 重装 ARM64 原生版）**：`git`、`python3`、`go` (`1.25.x`)、`java` (`jdk-21`)、`dotnet`、`.nvm` (Node v24)、`aws` CLI、`Android` SDK
 - **Windows 桌面开发软件**：
   - **Visual Studio Community 2022**（macOS 无 VS，建议改用 **JetBrains Rider** 或 **VS Code + C# Dev Kit**；`Unity 2022.3.62f3` & `Unity Hub` 已确认不迁移）
 - **AI 工具与 IDE 配置**：
