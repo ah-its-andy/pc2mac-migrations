@@ -1,0 +1,7 @@
+﻿anysphere.csharp
+anysphere.remote-containers
+anysphere.remote-ssh
+anysphere.remote-wsl
+avaloniateam.vscode-avalonia
+ms-dotnettools.vscode-dotnet-runtime
+nabheet.vscode-ide-mcp

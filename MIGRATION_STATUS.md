@@ -8,7 +8,8 @@
 - [ ] 检查并处理 `~/source/monorepo` 未提交修改（1 处）
 - [ ] 检查所有待迁移 Git 仓库是否有未 `push` 的本地分支/提交
 - [ ] 导出 `mysql` 与 `gambleguard-mysql` 全库逻辑备份（`.sql`，仅存本地/局域网传输，**勿提交到 Git**）
-- [ ] 导出 VS Code / Cursor 扩展列表（`vscode-extensions.txt`、`cursor-extensions.txt`）
+- [x] 导出 VS Code / Cursor 扩展列表（`vscode-extensions.txt`、`cursor-extensions.txt`）
+- [x] 生成 Mac 侧独立安装计划 `MAC_SETUP_PLAN.md` 并同步至 Mac (`~/pc2mac-migrations/`)
 - [ ] 整理待传输配置清单（`~/.ssh`、`~/.aws`、`~/.gitconfig`、Antigravity `mcp/` & 配置）
 
 ### Phase 1：MacBook Pro 基础与隔离环境初始化（Mac 侧负责）
@@ -35,4 +36,5 @@
 ---
 
 ## 交接日志（Handoff Log）
+- **2026-11-23**：打通免密 SSH (`andytsui@192.168.0.21`)，导出 `vscode-extensions.txt` 与 `cursor-extensions.txt`，生成 Mac 侧独立安装执行计划 `MAC_SETUP_PLAN.md` 并复制至 Mac `~/pc2mac-migrations/`。
 - **2026-11-20**：初始化 `pc2mac-migrations` 仓库，完成 `MIGRATION_PLAN.md`、`MIGRATION_STATUS.md` 与 `.gitignore`。
