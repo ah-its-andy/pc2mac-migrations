@@ -21,15 +21,15 @@
 ### Phase 2：局域网 / Tailscale 传输（双侧协同）
 - [x] 同步基础非敏感配置（Mac `~/.gitconfig` 设为 `osxkeychain`、VS Code & Cursor `settings.json`、WSL `.bashrc` 参考 `wsl-bashrc.ref`）
 - [x] 同步 Antigravity 配置与本地对话历史（`~/.gemini/config/config.json`、`mcp_config.json`、`mcp/`，以及 `conversations`、`brain`、`annotations`、`chapter_titles` 增量合并）
-- [x] 同步代码项目：`~/source/csn-workspace`（完整目录，已排除 `node_modules`）与 `~/source/GambleGuard-Workspace`（已排除 `node_modules`/`bin`/`obj`/`.venv`）
-- [x] 在 Mac Rancher Desktop 上重新构建 `linux/arm64` 基础镜像 `csn_baseimage:dev`（基于 `Dockerfile.arm64` + `archive.debian.org`）
+- [x] 同步代码项目：`~/source/csn-workspace`（完整目录，已排除 `node_modules`）、`~/source/framework` 与 `~/source/GambleGuard-Workspace`（已排除 `node_modules`/`bin`/`obj`/`.venv`）
+- [x] 在 Mac Rancher Desktop 上重新构建 `linux/arm64` 镜像：`csn_baseimage:dev` 与 `csn_bo_consumer:dev`
 - [ ] 传输其余凭证与密钥（`~/.ssh/*.pem`、`~/.aws` 等 —— **用户要求暂不同步 AWS/instabox 等访问密钥**）
-- [ ] 传输其余代码与编排目录（`~/source/framework`、`~/source/csnremaster-workspace`、`~/source/monorepo` 等，以及 `~/stacks`、`~/stacks-mac`、`~/csn-*`）
-- [ ] 传输数据库 `.sql` 备份与 `~/seatunnel-sync` → macOS 宿主
+- [ ] 传输其余代码与编排目录（`~/source/csnremaster-workspace`、`~/source/monorepo` 等）
+- [ ] 传输数据库 `.sql` 备份与 `~/seatunnel-sync` → macOS 宿主（**等待 Windows 侧启动 Rancher Desktop 以导出**）
 
 ### Phase 3：容器与数据库重建（Mac 侧负责）
-- [ ] 启动 `mysql`、`gambleguard-mysql`、`redis`、`kafka-dev` 容器并导入 `.sql` 备份
-- [ ] 验证 `ap-csn-api`、`ap-csn-bo` 镜像架构与运行状态（必要时开启 `linux/amd64` Rosetta 模拟）
+- [x] 批量替换 `stacks/*/compose.yml` 挂载路径为 `/Users/andytsui/source/...` 并拉起 `mysql`、`redis`、`kafka-dev`、`kafka-init`、`ap-csn-api`、`ap-csn-bo`、`ap-csn-bo-consumer`、`ap-frontend`
+- [ ] 启动 `gambleguard-mysql` 并导入 `mysql` (`app`) 与 `gambleguard-mysql` 的 `.sql` 备份
 
 ### Phase 4 & 5：IDE 恢复与整体验收（Mac 侧负责）
 - [ ] 批量安装 VS Code / Cursor 扩展并恢复配置
@@ -39,6 +39,7 @@
 ---
 
 ## 交接日志（Handoff Log）
+- **2026-11-23 (framework & stacks 容器拉起)**：已同步 `~/source/framework` 至 Mac；构建 `linux/arm64` 版 `csn_bo_consumer:dev`；批量替换 `stacks/*/compose.yml` 路径为 `/Users/andytsui/source/...` 并成功拉起 `mysql`、`redis`、`kafka-dev`、`ap-csn-api`、`ap-csn-bo`、`ap-csn-bo-consumer`、`ap-frontend`。待 Windows 侧启动 Rancher Desktop 后导出并导入 MySQL 备份。
 - **2026-11-23 (Antigravity 对话历史)**：已增量合并同步 Antigravity 本地对话历史（`conversations` 共 20 个会话、`brain` 共 19 个目录、`annotations`、`chapter_titles`），保留了 Mac 端原有新建会话。
 - **2026-11-23 (csn-workspace & ARM64 镜像)**：已完整同步 `csn-workspace` 至 Mac `~/source/csn-workspace/`，并在 Mac Rancher Desktop 上使用 `Dockerfile.arm64`（切换至 `archive.debian.org`）成功构建 `linux/arm64` 架构的 `csn_baseimage:dev` 镜像。
 - **2026-11-23 (Antigravity 与代码同步)**：已同步 Antigravity 配置（`config.json`、`mcp_config.json`、`mcp/`），并已将 `csn-workspace/csn_bo` 与 `GambleGuard-Workspace` 传输至 Mac `~/source/`。
