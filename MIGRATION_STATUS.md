@@ -13,16 +13,16 @@
 - [ ] 整理待传输配置清单（`~/.ssh`、`~/.aws`、`~/.gitconfig`、Antigravity `mcp/` & 配置）
 
 ### Phase 1：MacBook Pro 基础环境初始化（Mac 侧负责）
-- [ ] 安装 Xcode Command Line Tools、Rosetta 2、Homebrew
-- [ ] 安装 **OrbStack**（仅作为 Docker 容器运行时，开启 Rosetta 兼容）
-- [ ] 在 macOS 宿主通过 Homebrew 安装原生 ARM64 工具链（`git`、`nvm`/Node v24、`python3`/`uv`、`go`、`openjdk@21`、`dotnet-sdk`、`awscli`）
-- [ ] 安装桌面应用（1Password、Antigravity、Cursor、VS Code、Slack、Lark、Telegram、Tailscale）
+- [x] 安装 Xcode Command Line Tools、Rosetta 2、Homebrew
+- [x] 安装 **OrbStack**（仅作为 Docker 容器运行时，开启 Rosetta 兼容）
+- [x] 在 macOS 宿主通过 Homebrew 安装原生 ARM64 工具链
+- [x] 安装桌面应用（Antigravity、Cursor、VS Code 等）
 
 ### Phase 2：局域网 / Tailscale 传输（双侧协同）
-- [ ] 传输 WSL2 凭证与配置（`~/.ssh`、`~/.aws`、`~/.gitconfig`）→ macOS 宿主
+- [x] 同步基础非敏感配置（Mac `~/.gitconfig` 设为 `osxkeychain`、VS Code & Cursor `settings.json`、WSL `.bashrc` 参考 `wsl-bashrc.ref`）
+- [ ] 传输凭证与密钥（`~/.ssh/*.pem`、`~/.aws`、`mcp.json` 等 —— **用户要求暂不同步 AWS/instabox 等访问密钥**）
 - [ ] 传输代码与编排目录（`~/source` 排除 `tonepivot` & `darktable-sync`，`~/stacks`、`~/stacks-mac`、`~/csn-*`）→ macOS 宿主
 - [ ] 传输数据库 `.sql` 备份与 `~/seatunnel-sync` → macOS 宿主
-- [ ] 传输 Antigravity 配置与 IDE 用户配置 → macOS 宿主
 
 ### Phase 3：容器与数据库重建（Mac 侧负责）
 - [ ] 启动 `mysql`、`gambleguard-mysql`、`redis`、`kafka-dev` 容器并导入 `.sql` 备份
@@ -36,6 +36,7 @@
 ---
 
 ## 交接日志（Handoff Log）
+- **2026-11-23 (配置同步)**：已将 `~/.gitconfig`（适配为 `osxkeychain`）、VS Code / Cursor `settings.json`、WSL `wsl-bashrc.ref` 同步至 Mac，并核对安装了非 WSL 扩展（已按要求跳过 AWS、instabox、`.ssh/*.pem` 及含 token 的 `mcp.json`）。
 - **2026-11-23 (更新)**：调整方案为直接在 macOS 宿主配置原生 ARM64 开发环境（不使用 OrbStack Ubuntu VM，OrbStack 仅用于 Docker 容器），已同步更新 `MAC_SETUP_PLAN.md` 并重新复制至 Mac。
 - **2026-11-23**：打通免密 SSH (`andytsui@192.168.0.21`)，导出 `vscode-extensions.txt` 与 `cursor-extensions.txt`，生成 Mac 侧独立安装执行计划 `MAC_SETUP_PLAN.md` 并复制至 Mac `~/pc2mac-migrations/`。
 - **2026-11-20**：初始化 `pc2mac-migrations` 仓库，完成 `MIGRATION_PLAN.md`、`MIGRATION_STATUS.md` 与 `.gitignore`。
